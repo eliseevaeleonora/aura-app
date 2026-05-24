@@ -14,6 +14,7 @@ const stagger = {
 export default function ProfileScreen() {
   const profile = useAuraStore((s) => s.profile)
   if (!profile) return null
+const avatarUrl = `https://unavatar.io/telegram/${profile.username}`
 
   return (
     <div className="h-full overflow-y-auto scroll-hide">
@@ -25,16 +26,25 @@ export default function ProfileScreen() {
       >
         {/* Avatar & name */}
         <motion.div variants={stagger.item} className="flex flex-col items-center pt-14 pb-6 px-5">
-          <div
-            className="w-20 h-20 rounded-full flex items-center justify-center text-3xl mb-3"
-            style={{
-              background: 'linear-gradient(135deg, var(--color-purple3), var(--color-pink-dim))',
-              border: '2px solid var(--color-border2)',
-              boxShadow: '0 0 32px rgba(155,138,232,0.3)',
-            }}
-          >
-            ✦
-          </div>
+          <div className="w-20 h-20 rounded-full mb-3 overflow-hidden flex-shrink-0"
+  style={{ border: '2px solid var(--color-border2)', boxShadow: '0 0 32px rgba(155,138,232,0.3)' }}>
+  {profile.username ? (
+    <img
+      src={avatarUrl}
+      alt={profile.firstName}
+      className="w-full h-full object-cover"
+      onError={(e) => {
+        e.currentTarget.style.display = 'none'
+        e.currentTarget.parentElement!.innerHTML = '<div style="width:100%;height:100%;background:linear-gradient(135deg,#6d5dbd,#6b3a54);display:flex;align-items:center;justify-content:center;font-size:28px;color:white">✦</div>'
+      }}
+    />
+  ) : (
+    <div className="w-full h-full flex items-center justify-center text-3xl"
+      style={{ background: 'linear-gradient(135deg, var(--color-purple3), var(--color-pink-dim))' }}>
+      ✦
+    </div>
+  )}
+</div>
           <h2 className="font-display text-2xl font-normal mb-0.5" style={{ color: 'var(--color-text)' }}>
             {profile.firstName}
           </h2>
