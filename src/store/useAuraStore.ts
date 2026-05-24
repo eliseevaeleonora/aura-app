@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { immer } from 'zustand/middleware/immer' // we'll use plain zustand
+import { persist } from 'zustand/middleware'import { immer } from 'zustand/middleware/immer' // we'll use plain zustand
 import type { UserProfile, Task, WellnessStats, NavTab, ThemeName } from '@/types'
 import { MOCK_PROFILE, MOCK_TASKS, MOCK_WELLNESS } from '@/lib/mockData'
 
@@ -34,8 +34,9 @@ interface AuraState {
   setLoading: (v: boolean) => void
 }
 
-export const useAuraStore = create<AuraState>((set, get) => ({
-  // Navigation
+export const useAuraStore = create<AuraState>()(
+  persist(
+    (set, get) => ({  // Navigation
   activeTab: 'home',
   setActiveTab: (tab) => set({ activeTab: tab }),
 
@@ -120,4 +121,14 @@ export const useAuraStore = create<AuraState>((set, get) => ({
   // Loading
   isLoading: false,
   setLoading: (v) => set({ isLoading: v }),
-}))
+}),
+    {
+      name: 'aura-storage',
+      partialize: (state) => ({
+        profile: state.profile,
+        tasks: state.tasks,
+        wellness: state.wellness,
+      }),
+    }
+  )
+)
