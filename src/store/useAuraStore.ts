@@ -40,7 +40,7 @@ export const useAuraStore = create<AuraState>((set, get) => ({
   setActiveTab: (tab) => set({ activeTab: tab }),
 
   // User
-  profile: MOCK_PROFILE,
+  profile: null,
   setProfile: (profile) => set({ profile }),
 
   addXP: (amount) => {
