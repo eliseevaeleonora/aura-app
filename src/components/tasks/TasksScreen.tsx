@@ -1,86 +1,11 @@
-Давай полностью перепишем проблемные файлы. Начнём с AppShell:
-cmdnotepad src\components\layout\AppShell.tsx
-Нажми Ctrl+A → удали всё → вставь:
-tsx'use client'
-
-import { AnimatePresence, motion } from 'framer-motion'
-import { useAuraStore } from '@/store/useAuraStore'
-import BottomNav from './BottomNav'
-import XPToast from '@/components/ui/XPToast'
-import HomeScreen from '@/components/home/HomeScreen'
-import TasksScreen from '@/components/tasks/TasksScreen'
-import AnalyticsScreen from '@/components/analytics/AnalyticsScreen'
-import WellnessScreen from '@/components/wellness/WellnessScreen'
-import ShopScreen from '@/components/shop/ShopScreen'
-import ProfileScreen from '@/components/profile/ProfileScreen'
-
-const screens: Record<string, React.ComponentType> = {
-  home: HomeScreen,
-  tasks: TasksScreen,
-  analytics: AnalyticsScreen,
-  wellness: WellnessScreen,
-  shop: ShopScreen,
-  profile: ProfileScreen,
-}
-
-export default function AppShell() {
-  const activeTab = useAuraStore((s) => s.activeTab)
-  const xpToast = useAuraStore((s) => s.xpToast)
-  const profile = useAuraStore((s) => s.profile)
-
-  if (!profile) {
-    return (
-      <div style={{
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#0d0b14',
-        gap: 12,
-      }}>
-        <div style={{ fontFamily: 'Georgia, serif', fontSize: 36, color: '#c4b8f7' }}>✦</div>
-        <div style={{ fontFamily: 'Georgia, serif', fontSize: 24, color: '#e8e4fa' }}>Aura</div>
-        <div style={{ fontSize: 13, color: '#5a5278' }}>загрузка...</div>
-      </div>
-    )
-  }
-
-  const ActiveScreen = screens[activeTab] ?? HomeScreen
-
-  return (
-    <div className="flex flex-col h-full w-full overflow-hidden"
-      style={{ background: '#0d0b14' }}>
-      <div className="flex-1 overflow-hidden relative">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.22 }}
-            className="h-full"
-          >
-            <ActiveScreen />
-          </motion.div>
-        </AnimatePresence>
-      </div>
-      <BottomNav />
-      <XPToast visible={xpToast.visible} amount={xpToast.amount} label={xpToast.label} />
-    </div>
-  )
-}
-Сохрани. Теперь исправим добавление задач:
-cmdnotepad src\components\tasks\TasksScreen.tsx
-Нажми Ctrl+A → удали всё → вставь:
-tsx'use client'
+'use client'
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAuraStore } from '@/store/useAuraStore'
 import type { TaskCategory, Task } from '@/types'
 import TaskCard from './TaskCard'
-import { SectionTitle, Tabs, Card } from '@/components/ui'
+import { SectionTitle, Card } from '@/components/ui'
 
 const CATEGORIES: { value: TaskCategory; label: string; emoji: string; color: string }[] = [
   { value: 'mandatory', label: 'Обязательные', emoji: '⭐', color: 'var(--color-purple)' },
@@ -90,10 +15,7 @@ const CATEGORIES: { value: TaskCategory; label: string; emoji: string; color: st
 ]
 
 const CATEGORY_EMOJIS: Record<TaskCategory, string> = {
-  mandatory: '⭐',
-  work: '💼',
-  wellness: '🌸',
-  personal: '💕',
+  mandatory: '⭐', work: '💼', wellness: '🌸', personal: '💕',
 }
 
 const stagger = {
@@ -105,7 +27,6 @@ export default function TasksScreen() {
   const tasks = useAuraStore((s) => s.tasks)
   const addTask = useAuraStore((s) => s.addTask)
   const completed = tasks.filter((t) => t.completed).length
-
   const [showForm, setShowForm] = useState(false)
   const [newTitle, setNewTitle] = useState('')
   const [newCategory, setNewCategory] = useState<TaskCategory>('personal')
@@ -113,7 +34,7 @@ export default function TasksScreen() {
 
   const handleAdd = () => {
     if (!newTitle.trim()) return
-    const task: Task = {
+    addTask({
       id: Date.now().toString(),
       title: newTitle.trim(),
       category: newCategory,
@@ -123,8 +44,7 @@ export default function TasksScreen() {
       durationMinutes: parseInt(newDuration) || 30,
       emoji: CATEGORY_EMOJIS[newCategory],
       streakDays: 0,
-    }
-    addTask(task)
+    })
     setNewTitle('')
     setNewDuration('30')
     setShowForm(false)
@@ -132,12 +52,8 @@ export default function TasksScreen() {
 
   return (
     <div className="h-full overflow-y-auto scroll-hide">
-      <motion.div
-        variants={stagger.container}
-        initial="initial"
-        animate="animate"
-        className="pb-6"
-      >
+      <motion.div variants={stagger.container} initial="initial" animate="animate" className="pb-6">
+
         <motion.div variants={stagger.item} className="px-5 pt-12 pb-5">
           <h1 className="font-display text-xl" style={{ color: 'var(--color-text)' }}>
             Задачи <span className="italic" style={{ color: 'var(--color-purple2)' }}>✦</span>
@@ -157,11 +73,10 @@ export default function TasksScreen() {
               </span>
             </div>
             <div className="xp-bar-track" style={{ height: 7 }}>
-              <motion.div
-                className="xp-bar-fill"
+              <motion.div className="xp-bar-fill"
                 initial={{ width: 0 }}
                 animate={{ width: `${tasks.length > 0 ? (completed / tasks.length) * 100 : 0}%` }}
-                transition={{ duration: 1, ease: [0.4, 0, 0.2, 1] }}
+                transition={{ duration: 1 }}
                 style={{ height: '100%' }}
               />
             </div>
@@ -202,9 +117,8 @@ export default function TasksScreen() {
                 autoFocus
               />
               <div className="flex gap-2 mb-3">
-                {CATEGORIES.map(({ value, emoji, color }) => (
-                  <button key={value}
-                    onClick={() => setNewCategory(value)}
+                {CATEGORIES.map(({ value, emoji }) => (
+                  <button key={value} onClick={() => setNewCategory(value)}
                     className="flex-1 py-2 rounded-xl text-sm transition-all"
                     style={{
                       background: newCategory === value ? 'var(--color-purple-dim)' : 'var(--color-bg4)',
@@ -216,36 +130,30 @@ export default function TasksScreen() {
               </div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-xs" style={{ color: 'var(--color-text3)' }}>Время (мин):</span>
-                <input
-                  value={newDuration}
-                  onChange={e => setNewDuration(e.target.value)}
-                  type="number"
+                <input value={newDuration} onChange={e => setNewDuration(e.target.value)} type="number"
                   className="w-16 bg-transparent text-sm outline-none text-center"
                   style={{ color: 'var(--color-text)', border: '1px solid var(--color-border2)', borderRadius: 8, padding: '4px 8px' }}
                 />
               </div>
               <div className="flex gap-2">
-                <button onClick={handleAdd}
-                  className="flex-1 py-2.5 rounded-xl text-sm font-medium"
+                <button onClick={handleAdd} className="flex-1 py-2.5 rounded-xl text-sm font-medium"
                   style={{ background: 'var(--color-purple-dim)', color: 'var(--color-purple2)', border: '1px solid var(--color-purple)' }}>
                   Добавить ✓
                 </button>
-                <button onClick={() => setShowForm(false)}
-                  className="px-4 py-2.5 rounded-xl text-sm"
+                <button onClick={() => setShowForm(false)} className="px-4 py-2.5 rounded-xl text-sm"
                   style={{ color: 'var(--color-text3)', border: '1px solid var(--color-border)' }}>
                   Отмена
                 </button>
               </div>
             </div>
           )}
-
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="w-full rounded-2xl py-3.5 flex items-center justify-center gap-2 text-sm transition-all active:scale-98"
+          <button onClick={() => setShowForm(!showForm)}
+            className="w-full rounded-2xl py-3.5 flex items-center justify-center gap-2 text-sm transition-all"
             style={{ background: 'transparent', border: '1px dashed var(--color-border2)', color: 'var(--color-text3)' }}>
             + Добавить задачу
           </button>
         </motion.div>
+
       </motion.div>
     </div>
   )
