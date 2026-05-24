@@ -293,7 +293,7 @@ export default function WellnessScreen() {
                     className="absolute inset-0 rounded-full"
                     style={{ border: '2px solid var(--color-purple)', opacity: breathPhase >= 0 ? 0.4 : 0.15 }}
                     animate={breathPhase >= 0 ? { scale: breathScale, opacity: [0.4, 0.15, 0.4] } : { scale: 1 }}
-                    transition={{ duration: BREATH_PHASES[breathPhase >= 0 ? breathPhase : 0]?.duration / 1000 ?? 1, ease: 'easeInOut' }}
+                    transition={{ duration: (BREATH_PHASES[breathPhase >= 0 ? breathPhase : 0]?.duration ?? 1000) / 1000, ease: 'easeInOut' }}
                   />
 
                   {/* Main circle */}
@@ -305,7 +305,7 @@ export default function WellnessScreen() {
                       border: '1.5px solid var(--color-border2)',
                     }}
                     animate={breathPhase >= 0 ? { scale: breathScale } : { scale: 1 }}
-                    transition={{ duration: BREATH_PHASES[breathPhase >= 0 ? breathPhase : 0]?.duration / 1000 ?? 1, ease: 'easeInOut' }}
+                    transition={{ duration: (BREATH_PHASES[breathPhase >= 0 ? breathPhase : 0]?.duration ?? 1000) / 1000, ease: 'easeInOut' }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <span className="text-sm font-medium" style={{ color: 'var(--color-purple2)' }}>
