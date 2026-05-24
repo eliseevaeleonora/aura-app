@@ -56,8 +56,21 @@ const saveNote = () => {
   setTimeout(() => setNoteSaved(false), 2000)
 }period, setPeriod] = useState<AnalyticsPeriod>('week')
 
-  const data = MOCK_ANALYTICS
+const tasks = useAuraStore((s) => s.tasks)
+const completedTasks = tasks.filter(t => t.completed)
+const totalXP = completedTasks.reduce((sum, t) => sum + t.xpReward, 0)
 
+const data = {
+  ...MOCK_ANALYTICS,
+  totalTasks: completedTasks.length,
+  totalXP,
+  habitProgress: [
+    { name: 'Медитация', emoji: '🧘', completed: completedTasks.filter(t => t.title.includes('медитац')).length, target: 7 },
+    { name: 'Тренировки', emoji: '🏃', completed: completedTasks.filter(t => t.title.includes('пробежк') || t.title.includes('трениров')).length, target: 7 },
+    { name: 'Чтение', emoji: '📚', completed: completedTasks.filter(t => t.title.includes('чтени') || t.title.includes('книг')).length, target: 7 },
+    { name: 'Wellness', emoji: '✨', completed: completedTasks.filter(t => t.category === 'wellness').length, target: 7 },
+  ],
+}
   const activityData = data.activity.map((d) => ({
     name: d.label,
     value: d.value,
