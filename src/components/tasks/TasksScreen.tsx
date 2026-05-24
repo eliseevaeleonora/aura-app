@@ -24,6 +24,12 @@ const stagger = {
 
 export default function TasksScreen() {
   const tasks = useAuraStore((s) => s.tasks)
+const profile = useAuraStore((s) => s.profile)
+const addTask = useAuraStore((s) => s.addTask)
+const [showForm, setShowForm] = useState(false)
+const [newTitle, setNewTitle] = useState('')
+const [newCategory, setNewCategory] = useState<TaskCategory>('personal')
+const [newDuration, setNewDuration] = useState('30')
   const completed = tasks.filter((t) => t.completed).length
 
   return (
@@ -124,10 +130,62 @@ export default function TasksScreen() {
               <circle cx="8" cy="8" r="7" />
               <path d="M8 5v6M5 8h6" />
             </svg>
-            Добавить задачу
-          </button>
-        </motion.div>
-      </motion.div>
+           {showForm && (
+  <div className="rounded-2xl p-4 mb-2"
+    style={{ background: 'var(--color-card)', border: '1px solid var(--color-border2)' }}>
+    <input
+      value={newTitle}
+      onChange={e => setNewTitle(e.target.value)}
+      placeholder="Название задачи..."
+      className="w-full bg-transparent text-sm mb-3 outline-none"
+      style={{ color: 'var(--color-text)', borderBottom: '1px solid var(--color-border2)', paddingBottom: 6 }}
+    />
+    <div className="flex gap-2 mb-3">
+      {(['mandatory','work','wellness','personal'] as TaskCategory[]).map(cat => (
+        <button key={cat}
+          onClick={() => setNewCategory(cat)}
+          className="flex-1 py-1.5 rounded-xl text-[11px] font-medium transition-all"
+          style={{
+            background: newCategory === cat ? 'var(--color-purple-dim)' : 'transparent',
+            border: `1px solid ${newCategory === cat ? 'var(--color-purple)' : 'var(--color-border)'}`,
+            color: newCategory === cat ? 'var(--color-purple2)' : 'var(--color-text3)',
+          }}>
+          {cat === 'mandatory' ? '⭐' : cat === 'work' ? '💼' : cat === 'wellness' ? '🌸' : '💕'}
+        </button>
+      ))}
     </div>
-  )
-}
+    <div className="flex gap-2">
+      <button onClick={() => {
+        if (!newTitle.trim()) return
+        addTask({
+          id: Date.now().toString(),
+          title: newTitle,
+          category: newCategory,
+          completed: false,
+          xpReward: 30,
+          diamondReward: 3,
+          durationMinutes: parseInt(newDuration) || 30,
+          emoji: newCategory === 'mandatory' ? '⭐' : newCategory === 'work' ? '💼' : newCategory === 'wellness' ? '🌸' : '💕',
+          streakDays: 0,
+        })
+        setNewTitle('')
+        setShowForm(false)
+      }}
+        className="flex-1 py-2 rounded-xl text-sm font-medium"
+        style={{ background: 'var(--color-purple-dim)', color: 'var(--color-purple2)', border: '1px solid var(--color-purple)' }}>
+        Добавить
+      </button>
+      <button onClick={() => setShowForm(false)}
+        className="px-4 py-2 rounded-xl text-sm"
+        style={{ color: 'var(--color-text3)', border: '1px solid var(--color-border)' }}>
+        Отмена
+      </button>
+    </div>
+  </div>
+)}
+<button
+  onClick={() => setShowForm(true)}
+  className="w-full rounded-[18px] py-3.5 flex items-center justify-center gap-2 text-sm transition-all"
+  style={{ background: 'transparent', border: '1px dashed var(--color-border2)', color: 'var(--color-text3)' }}>
+  + Добавить задачу
+</button>
