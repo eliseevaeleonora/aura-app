@@ -26,36 +26,19 @@ export default function AppShell() {
 
   const ActiveScreen = screens[activeTab]
 
-  return (
-    <div
-      className="flex flex-col h-full w-full overflow-hidden"
-      style={{ background: 'var(--color-bg)' }}
-    >
-      {/* Screen area */}
-      <div className="flex-1 overflow-hidden relative">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-            className="h-full"
-          >
-            <ActiveScreen />
-          </motion.div>
-        </AnimatePresence>
-      </div>
+ const profile = useAuraStore((s) => s.profile)
 
-      {/* Bottom Navigation */}
-      <BottomNav />
-
-      {/* Global XP Toast */}
-      <XPToast
-        visible={xpToast.visible}
-        amount={xpToast.amount}
-        label={xpToast.label}
-      />
-    </div>
-  )
-}
+if (!profile) return (
+  <div style={{
+    height: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#0d0b14',
+    fontFamily: 'Georgia, serif',
+    fontSize: 28,
+    color: '#c4b8f7',
+  }}>
+    Aura ✦
+  </div>
+)
