@@ -123,7 +123,7 @@ export const useAuraStore = create<AuraState>()(
   setLoading: (v) => set({ isLoading: v }),
 }),
     {
-      name: 'aura-storage',
+      name: 'aura-storage-v2',
       partialize: (state) => ({
         profile: state.profile,
         tasks: state.tasks,
