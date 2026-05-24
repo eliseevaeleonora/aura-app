@@ -5,6 +5,7 @@ import { useAuraStore } from '@/store/useAuraStore'
 import { getGreeting, getWeekDays, getMoodEmoji, formatNumber } from '@/lib/utils'
 import { MOCK_WELLNESS } from '@/lib/mockData'
 import { SectionTitle, XPBar, Card } from '@/components/ui'
+import { useState } from 'react'
 import TaskCard from '@/components/tasks/TaskCard'
 
 const stagger = {
@@ -17,8 +18,28 @@ const stagger = {
 
 export default function HomeScreen() {
   const profile = useAuraStore((s) => s.profile)
+const addXP = useAuraStore((s) => s.addXP)
+const showXPToast = useAuraStore((s) => s.showXPToast)
   const tasks = useAuraStore((s) => s.tasks)
-  const weekDays = getWeekDays()
+  const weeconst [habits, setHabits] = useState([
+  { id: 'h1', emoji: '🧘', title: 'Медитация', streak: 0, done: false, xp: 30 },
+  { id: 'h2', emoji: '🏃', title: 'Спорт', streak: 0, done: false, xp: 50 },
+  { id: 'h3', emoji: '📚', title: 'Чтение', streak: 0, done: false, xp: 40 },
+  { id: 'h4', emoji: '💧', title: 'Вода 2л', streak: 0, done: false, xp: 20 },
+  { id: 'h5', emoji: '🌙', title: 'Сон до 23:00', streak: 0, done: false, xp: 25 },
+])
+
+const toggleHabit = (id: string) => {
+  setHabits(prev => prev.map(h => {
+    if (h.id !== id) return h
+    if (!h.done) {
+      addXP(h.xp)
+      showXPToast(h.xp)
+    }
+    return { ...h, done: !h.done, streak: !h.done ? h.streak + 1 : Math.max(0, h.streak - 1) }
+  }))
+}kDays = getWeekDays()
+
   const completedCount = tasks.filter((t) => t.completed).length
   const totalCount = tasks.length
 
@@ -168,7 +189,43 @@ export default function HomeScreen() {
           </motion.div>
         ))}
 
-        {/* ── Wellness Mini Stats ── */}
+        {/* ── Wellness <motion.div variants={stagger.item} className="px-5 pt-2 pb-2">
+  <SectionTitle>Привычки</SectionTitle>
+  <div className="flex flex-col gap-2">
+    {habits.map(habit => (
+      <div
+        key={habit.id}
+        onClick={() => toggleHabit(habit.id)}
+        className="flex items-center gap-3 px-4 py-3 rounded-2xl cursor-pointer active:scale-[0.98] transition-all"
+        style={{
+          background: habit.done ? 'var(--color-purple-dim)' : 'var(--color-card)',
+          border: `1px solid ${habit.done ? 'var(--color-purple)' : 'var(--color-border)'}`,
+        }}
+      >
+        <div
+          className="w-9 h-9 rounded-full flex items-center justify-center text-lg flex-shrink-0"
+          style={{ background: habit.done ? 'var(--color-purple)' : 'var(--color-bg4)' }}
+        >
+          {habit.done ? '✓' : habit.emoji}
+        </div>
+        <div className="flex-1">
+          <div className="text-sm font-medium" style={{ color: habit.done ? 'var(--color-purple2)' : 'var(--color-text)' }}>
+            {habit.title}
+          </div>
+          {habit.streak > 0 && (
+            <div className="text-xs" style={{ color: 'var(--color-text3)' }}>
+              🔥 {habit.streak} дней подряд
+            </div>
+          )}
+        </div>
+        <span className="text-xs font-semibold" style={{ color: 'var(--color-gold)' }}>
+          +{habit.xp} XP
+        </span>
+      </div>
+    ))}
+  </div>
+</motion.div>Mini Stats ── */}
+
         <motion.div variants={stagger.item} className="px-5 pt-2 pb-2">
           <SectionTitle>Самочувствие сегодня</SectionTitle>
           <div className="grid grid-cols-4 gap-2">
